@@ -2,17 +2,20 @@ import tkinter as tk
 from tkinter.scrolledtext import ScrolledText
 from pynput import keyboard
 from collections import OrderedDict
+from PIL import Image, ImageTk
 
 import sys
 import os
 import random
 import datetime
 import argparse
+import re
 
 snapshots = OrderedDict()
 num_snapshots = 0
 snapshot_labels = {}
 snapshot_folder = "~/.snapshots"
+focus_toggle = 0
 
 def delete_excess_snapshot():
     global num_snapshots
@@ -77,6 +80,23 @@ def display_snapshots():
         label = tk.Label(root, text=snap)
         label.grid(row=i, column=1, padx=10, pady=10, sticky="w")
         snapshot_labels[snap] = label
+
+def run_cmd(e):
+    cmd = cmd_pad.get()
+    if re.search("^g .*$", cmd):
+        text_pad.mark_set(tk.INSERT, str(float(cmd.split()[1])))
+
+    cmd_pad.delete(0, tk.END)
+    focus_other_box(None)
+    
+def focus_other_box(e):
+    global focus_toggle
+    if focus_toggle == 1:
+        cmd_pad.focus_set()
+        focus_toggle = 0
+    else:
+        text_pad.focus_set()
+        focus_toggle = 1
         
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -103,12 +123,16 @@ if __name__ == "__main__":
 
     root.title("Snapshot Editor")
     root.bind_all('<Control-s>', take_snapshot)
-
+    root.bind_all('<Escape>', focus_other_box)
     text_pad = ScrolledText(root, font=("Consolas", 25))
-    text_pad.grid(row=0, column=0, rowspan=10, padx=10, pady=10, sticky="nsew")
+    
+    text_pad.grid(row=0, column=0, rowspan=9, padx=10, pady=10, sticky="nsew")
     text_pad.delete("1.0", tk.END)
 
-    text_pad.insert(tk.END, content_init)
+    cmd_pad = tk.Entry(root)
+    cmd_pad.grid(row=0, column=0, rowspan=1, padx=10, pady=10, sticky="n")
+
+    cmd_pad.bind('<Return>', run_cmd)
     
     root.grid_columnconfigure(0, weight=1)
     root.grid_columnconfigure(1, weight=1)
