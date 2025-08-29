@@ -128,7 +128,8 @@ if __name__ == "__main__":
     
     text_pad.grid(row=0, column=0, rowspan=9, padx=10, pady=10, sticky="nsew")
     text_pad.delete("1.0", tk.END)
-
+    text_pad.insert(tk.END, content_init)
+    
     cmd_pad = tk.Entry(root)
     cmd_pad.grid(row=0, column=0, rowspan=1, padx=10, pady=10, sticky="n")
 
