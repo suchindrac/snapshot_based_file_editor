@@ -62,6 +62,7 @@ def take_snapshot(e, normal=False):
     
     fd = open(file_path, 'w')
     fd.write(content)
+    fd_rw.seek(0)
     fd_rw.write(content)
     fd.close()
 
@@ -106,7 +107,7 @@ if __name__ == "__main__":
     text_pad = ScrolledText(root, font=("Consolas", 25))
     text_pad.grid(row=0, column=0, rowspan=10, padx=10, pady=10, sticky="nsew")
     text_pad.delete("1.0", tk.END)
-    
+
     text_pad.insert(tk.END, content_init)
     
     root.grid_columnconfigure(0, weight=1)
