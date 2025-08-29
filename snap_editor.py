@@ -6,10 +6,12 @@ from collections import OrderedDict
 import os
 import random
 import datetime
+import argparse
 
 snapshots = OrderedDict()
 num_snapshots = 0
 snapshot_labels = {}
+snapshot_folder = "~/.snapshots"
 
 def delete_excess_snapshot():
     global num_snapshots
@@ -54,13 +56,15 @@ def take_snapshot(e, normal=False):
         file_name = f"snapshot_{f_time}.txt"
     else:
         file_name = f"sec_snapshot_{f_time}.txt"
-        
-    fd = open(file_name, 'w')
+
+    file_path = os.path.join(file_prefix_path, file_name)
+    
+    fd = open(file_path, 'w')
     fd.write(content)
     fd.close()
 
     s_name = f"Snapshot at {f_time}"
-    snapshots[s_name] = file_name
+    snapshots[s_name] = file_path
     num_snapshots += 1
     display_snapshots()
     
@@ -72,6 +76,19 @@ def display_snapshots():
         snapshot_labels[snap] = label
         
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-f", "--file", required=True, type=str, help="File name to save the snapshots")
+    args = parser.parse_args()
+
+    file_prefix = args.file
+
+    if not os.path.isdir(os.path.expanduser(snapshot_folder)):
+        os.mkdir(os.path.expanduser(snapshot_folder))
+
+    file_prefix_path = os.path.join(os.path.expanduser(snapshot_folder), file_prefix)
+    if not os.path.isdir(file_prefix_path):
+        os.mkdir(file_prefix_path)
+    
     root = tk.Tk()
 
     root.title("Snapshot Editor")
