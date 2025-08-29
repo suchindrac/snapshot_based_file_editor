@@ -3,6 +3,7 @@ from tkinter.scrolledtext import ScrolledText
 from pynput import keyboard
 from collections import OrderedDict
 
+import sys
 import os
 import random
 import datetime
@@ -61,6 +62,7 @@ def take_snapshot(e, normal=False):
     
     fd = open(file_path, 'w')
     fd.write(content)
+    fd_rw.write(content)
     fd.close()
 
     s_name = f"Snapshot at {f_time}"
@@ -88,6 +90,13 @@ if __name__ == "__main__":
     file_prefix_path = os.path.join(os.path.expanduser(snapshot_folder), file_prefix)
     if not os.path.isdir(file_prefix_path):
         os.mkdir(file_prefix_path)
+
+    try:
+        fd_rw = open(file_prefix, "r+")
+        content_init = fd_rw.read()
+    except:
+        print("File not found in current folder, opening empty file")
+        pass
     
     root = tk.Tk()
 
@@ -96,7 +105,10 @@ if __name__ == "__main__":
 
     text_pad = ScrolledText(root, font=("Consolas", 25))
     text_pad.grid(row=0, column=0, rowspan=10, padx=10, pady=10, sticky="nsew")
-
+    text_pad.delete("1.0", tk.END)
+    
+    text_pad.insert(tk.END, content_init)
+    
     root.grid_columnconfigure(0, weight=1)
     root.grid_columnconfigure(1, weight=1)
     for i in range(10):
