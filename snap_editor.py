@@ -21,7 +21,7 @@ def delete_excess_snapshot():
     global num_snapshots
     global snapshots
 
-    if num_snapshots > 10:
+    if num_snapshots >= 9:
         normal_snapshots = [x for x in snapshots.keys() if "sec" not in x]
         if len(normal_snapshots) == 0:
             return
@@ -73,7 +73,23 @@ def take_snapshot(e, normal=False):
     snapshots[s_name] = file_path
     num_snapshots += 1
     display_snapshots()
-    
+
+def revert_snapshot(snap_num):
+    try:
+        snap_name = list(snapshots.keys())[snap_num - 1]
+        snap_file_path = snapshots[snap_name]
+        fd = open(snap_file_path, 'r')
+        content = fd.read()
+        fd.close()
+
+        text_pad.delete("1.0", tk.END)
+        text_pad.insert(tk.END, content)
+    except:
+        print(sys.exc_info())
+        print("Reverting snapshot failed")
+
+    return
+
 def display_snapshots():
     global snapshot_labels
     for i, snap in enumerate(list(snapshots.keys())):
@@ -86,6 +102,16 @@ def run_cmd(e):
     if re.search("^g .*$", cmd):
         text_pad.mark_set(tk.INSERT, str(float(cmd.split()[1])))
 
+    if re.search("^r .*$", cmd):
+        pat = "^r (.*)$"
+        s = re.match(pat, cmd)
+        try:
+            snap_num = int(s.groups()[0])
+        except:
+            print("Invalid number")
+            return
+        revert_snapshot(snap_num)
+        
     cmd_pad.delete(0, tk.END)
     focus_other_box(None)
     
